@@ -10,7 +10,8 @@ app.use(express.urlencoded({ extended: true })); // รองรับ form-data
 
 // เชื่อมต่อฐานข้อมูลจาก .env
 const db = mysql.createPool({
-  host: process.env.DB_HOST,
+  host: process.env.DB_HOST,ห
+  port : process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
