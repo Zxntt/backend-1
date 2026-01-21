@@ -64,7 +64,7 @@ router.post("/register", async (req, res) => {
 
     const [userCheck] = await pool.query(
       "SELECT id FROM tbl_users WHERE username = ?",
-      [username]
+      [username],
     );
 
     if (userCheck.length > 0) {
@@ -98,7 +98,7 @@ router.post("/register", async (req, res) => {
         address,
         sex,
         birthday,
-      ]
+      ],
     );
 
     res.json({ message: "สมัครสมาชิกสำเร็จ" });
@@ -147,9 +147,10 @@ router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    // Select ข้อมูลรวมถึง role (ปกติ * ก็มาหมดอยู่แล้ว)
     const [rows] = await pool.query(
       "SELECT * FROM tbl_users WHERE username = ?",
-      [username]
+      [username],
     );
 
     if (rows.length === 0) {
@@ -163,16 +164,22 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "รหัสผ่านไม่ถูกต้อง" });
     }
 
+    // เพิ่ม role เข้าไปใน Token payload
     const token = jwt.sign(
       {
         id: user.id,
         username: user.username,
+        role: user.role, // <--- เพิ่มตรงนี้
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1h" },
     );
 
-    res.json({ token });
+    // ส่ง role กลับไปให้ Frontend ใช้งาน
+    res.json({
+      token,
+      role: user.role, // <--- ส่ง role กลับไปด้วย
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
